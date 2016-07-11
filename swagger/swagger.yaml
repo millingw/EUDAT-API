@@ -1,0 +1,283 @@
+---
+swagger: "2.0"
+info:
+  version: "0.0.1"
+  title: "EUDAT HTTP API"
+  contact:
+    name: "EUDAT HTTP API team"
+    url: "http://eudat.eu"
+    email: "info@eudat.eu"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0"
+host: "eudat.epcc.ed.ac.uk"
+basePath: "/api"
+schemes:
+- "http"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+paths:
+  /digitalobjects/:
+    get:
+      tags:
+      - "default_controller"
+      description: "Searches the digital objects.\n"
+      operationId: "app.get_digital_objects"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "filter"
+        in: "query"
+        description: "filter parameters"
+        required: false
+        type: "array"
+        items:
+          type: "string"
+        collectionFormat: "multi"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            title: "List of IDs"
+            items:
+              $ref: "#/definitions/inline_response_200"
+    post:
+      tags:
+      - "default_controller"
+      description: "Create a digital object\n"
+      operationId: "app.create_digital_object"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "metadata"
+        description: "The object metadata in JSON format"
+        required: true
+        schema:
+          $ref: "#/definitions/metadata"
+      responses:
+        200:
+          description: "object was created successfully"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+  /digitalobjects/{id}:
+    get:
+      tags:
+      - "default_controller"
+      description: "Returns information about the digital object\n"
+      operationId: "app.get_digital_object"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of digital object"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+          schema:
+            $ref: "#/definitions/inline_response_200_1"
+    patch:
+      tags:
+      - "default_controller"
+      description: "Change state of a digital object"
+      operationId: "app.update_digital_object"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of digital object"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "OK"
+  /digitalobjects/{id}/entities:
+    get:
+      tags:
+      - "default_controller"
+      description: "Search for an entity or a set of entities in a Digital Object.\n"
+      operationId: "app.get_object_entities"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of digital object"
+        required: true
+        type: "string"
+      - name: "filename"
+        in: "query"
+        description: "entity filename"
+        required: false
+        type: "string"
+      - name: "recursive"
+        in: "query"
+        description: "recursive search"
+        required: false
+        type: "boolean"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "array"
+            title: "List of IDs"
+            items:
+              $ref: "#/definitions/inline_response_200"
+    post:
+      tags:
+      - "default_controller"
+      description: "Add a Digital Entity to a Digital Object.\n"
+      operationId: "app.add_entity_to_object"
+      consumes:
+      - "multipart/form-data"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of digital object"
+        required: true
+        type: "string"
+      - name: "entity_data"
+        in: "formData"
+        description: "The entity object data"
+        required: true
+        type: "file"
+        maxLength: 5000000
+        minLength: 1
+      responses:
+        200:
+          description: "Returns the uploaded entity information"
+          schema:
+            $ref: "#/definitions/inline_response_200_2"
+          headers:
+            Location:
+              type: "string"
+              description: "The URL of the newly-added entity"
+  /digitalobjects/{parent_id}/entities/{entity_id}:
+    get:
+      tags:
+      - "default_controller"
+      description: "Retrieve an entity file by its id within a parent object.\n"
+      operationId: "app.get_entity_file"
+      produces:
+      - "application/file"
+      parameters:
+      - name: "parent_id"
+        in: "path"
+        description: "ID of parent digital object"
+        required: true
+        type: "string"
+      - name: "entity_id"
+        in: "path"
+        description: "ID of entity digital object"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful response"
+          schema:
+            type: "string"
+            title: "message"
+    delete:
+      tags:
+      - "default_controller"
+      description: "Delete an entity file. Deletion is only possible if the Digital\
+        \ Object is in a draft state.\n"
+      operationId: "app.delete_entity"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "parent_id"
+        in: "path"
+        description: "ID of parent digital object"
+        required: true
+        type: "string"
+      - name: "entity_id"
+        in: "path"
+        description: "ID of entity digital object"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful deletion"
+          schema:
+            type: "string"
+            title: "response message"
+    patch:
+      tags:
+      - "default_controller"
+      description: "Change the name of an entity file\n"
+      operationId: "app.rename_entity"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "parent_id"
+        in: "path"
+        description: "ID of parent digital object"
+        required: true
+        type: "string"
+      - name: "entity_id"
+        in: "path"
+        description: "ID of entity digital object"
+        required: true
+        type: "string"
+      - name: "filename"
+        in: "query"
+        description: "new name for the entity file"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successful update"
+          schema:
+            type: "string"
+            title: "response message"
+definitions:
+  metadata:
+    type: "object"
+    properties:
+      schema_id:
+        type: "string"
+      fields:
+        type: "object"
+        properties: {}
+  inline_response_200_1:
+    properties:
+      id:
+        type: "string"
+      published_by:
+        type: "string"
+      files_count:
+        type: "integer"
+      metadata:
+        $ref: "#/definitions/inline_response_200_1_metadata"
+  inline_response_200:
+    properties:
+      id:
+        type: "string"
+  inline_response_200_2:
+    properties:
+      id:
+        type: "string"
+        description: "The auto-generated entity id"
+      filename:
+        type: "string"
+        description: "The filename of the uploaded entity"
+      entity-length:
+        type: "integer"
+        description: "Length of the uploaded entity"
+  inline_response_200_1_metadata:
+    properties:
+      schema_id:
+        type: "string"
+      fields:
+        type: "object"
+        properties: {}

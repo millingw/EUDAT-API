@@ -1,0 +1,9 @@
+{
+"schema_id": "someschema",
+"fields": {
+   "somefield1": "somevalue",
+   "somefield2": "somevalue",
+   "somefield3": "somevalue"
+  }
+}
+
