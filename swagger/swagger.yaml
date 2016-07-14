@@ -157,10 +157,6 @@ paths:
           description: "Returns the uploaded entity information"
           schema:
             $ref: "#/definitions/inline_response_200_2"
-          headers:
-            Location:
-              type: "string"
-              description: "The URL of the newly-added entity"
   /digitalobjects/{parent_id}/entities/{entity_id}:
     get:
       tags:
