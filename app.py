@@ -24,7 +24,7 @@ def __ensure_dir(f):
 def add_entity_to_object(id, entity_data):
     objectdir = os.path.join(__basedir, id)
     if not os.path.exists(objectdir):
-        return 400, "object does not exist"
+        return "object does not exist", 404
     # just use a uuid for the entity, although a pid would be better
     entity_uuid = str(uuid.uuid4())
     entity_dir = os.path.join(objectdir, entity_uuid)
@@ -32,8 +32,6 @@ def add_entity_to_object(id, entity_data):
     entity_path = os.path.join(entity_dir, entity_data.filename)
     entity_data.save(entity_path)
     file_length = os.path.getsize(entity_path)
-
-    print ("attempting to return result")
     return  {"id":entity_uuid, "filename":entity_data.filename, "entity_length":file_length}, 200
 
 # create a new digital object
@@ -52,19 +50,19 @@ def create_digital_object(metadata):
 def delete_entity(parent_id, entity_id):
     filepath = os.path.join(__basedir, parent_id)
     if not os.path.exists(filepath):
-        return 400, "object does not exist"
+        return "object does not exist", 404
     filepath = os.path.join(filepath, entity_id)
     if not os.path.exists(filepath):
-        return 400, "entity does not exist"
+        return "entity does not exist", 404
     shutil.rmtree(filepath)
-    return 200, "Deleted"
+    return "Deleted", 200
 
 # return information about the requested object
 def get_digital_object(id):
     # get a count of the entities by counting the number of subdirectories
     filepath = os.path.join(__basedir, id)
     if not os.path.exists(filepath):
-        return 400, "object does not exist"
+        return "object does not exist", 404
     count = 0
     for f in os.listdir(filepath):
         child = os.path.join(filepath, f)
@@ -89,7 +87,7 @@ def get_digital_objects(filter = None):
 def get_entity_file(parent_id, entity_id):
     filepath = os.path.join(__basedir, parent_id, entity_id)
     if not os.path.exists(filepath):
-        return 400, "entity does not exist"
+        return "entity does not exist", 404
     # we only expect one file in the directory, maybe a more efficient way to do this?
     for child in os.listdir(filepath):
         filename = os.path.join(filepath, child)
@@ -98,14 +96,14 @@ def get_entity_file(parent_id, entity_id):
             with open(filename, 'r') as f:
                 body = f.read()
                 return make_response((body, headers))
-    return 400, "Not found"
+    return "Not found", 404
     
 # get the entity ids for a specified object
 # just lists the child directory names for the object's own directory
 def get_object_entities(id, filename = None, recursive = None):
     filepath = os.path.join(__basedir, id)
     if not os.path.exists(filepath):
-        return 400, "object does not exist"
+        return "object does not exist", 404
     entities = []
     for child in os.listdir(filepath):
         if os.path.isdir(os.path.join(filepath, child)):
@@ -118,8 +116,8 @@ def rename_entity(parent_id, entity_id, filename):
     for child in os.listdir(filepath):
         if os.path.isfile(os.path.join(filepath, child)):
             os.rename(os.path.join(filepath, child), os.path.join(filepath, filename))
-            return 200, filename
-    return 400, "Not found"
+            return filename, 200
+    return "Not found", 404
 
 def update_digital_object(id):
     return 'do some magic!'
