@@ -71,7 +71,7 @@ def get_digital_object(id):
     # get the metadata file and return it as json
     with open(os.path.join(filepath, ".metadata")) as data_file:
         metadata = json.load(data_file)
-    return {"id":id, "published_by":"someuser", "files count":count, "metadata": metadata }, 200
+    return {"id":id, "published_by":"someuser", "files_count":count, "metadata": metadata }, 200
 
 # get all the digital objects we know about;
 # in our case we just traverse the parent directory and return all the child directory names
